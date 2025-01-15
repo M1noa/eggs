@@ -1,0 +1,72 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2025-01-15T00:51:39-06:00",
+    "name": "EVIL AdGuard Home \ud83d\ude08",
+    "author": "help@pterodactyl.io",
+    "description": "AdGuard Home is a network-wide software for blocking ads & tracking. After you set it up, it'll cover ALL your home devices, and you don't need any client-side software for that.",
+    "features": [],
+    "docker_images": {
+        "AdGuard Home": "ghcr.io\/pterodactyl\/yolks:debian"
+    },
+    "file_denylist": [],
+    "startup": "chmod +x .\/AdGuardHome && .\/AdGuardHome -c .\/AdGuardHome.yaml -w .\/work -h 0.0.0.0 -p {{server.build.default.port}}",
+    "config": {
+        "files": "{\r\n    \"AdGuardHome.yaml\": {\r\n        \"parser\": \"yaml\",\r\n        \"find\": {\r\n            \"bind_host\": \"0.0.0.0\",\r\n            \"bind_port\": \"{{server.build.default.port}}\",\r\n            \"dns.port\": \"{{server.build.env.DNS_PORT}}\",\r\n            \"auth_name\": \"{{server.build.env.ADMIN_USERNAME}}\",\r\n            \"auth_pass\": \"{{server.build.env.ADMIN_PASSWORD}}\"\r\n        }\r\n    }\r\n}",
+        "startup": "{\r\n    \"done\": [\r\n        \"AdGuard Home is ready to use\"\r\n    ]\r\n}",
+        "logs": "{}",
+        "stop": "^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!\/bin\/ash\r\n# AdGuard Home Installation Script\r\n#\r\n# Server Files: \/mnt\/server\r\n\r\ncd \/mnt\/server\r\n\r\necho \"Starting AdGuard Home installation...\"\r\n\r\n# Get latest version URL\r\nLATEST_RELEASE=$(curl -sSL https:\/\/api.github.com\/repos\/AdguardTeam\/AdGuardHome\/releases\/latest | grep -o 'https:\/\/.*_linux_amd64.tar.gz')\r\necho \"Latest release URL: ${LATEST_RELEASE}\"\r\n\r\n# Download and extract in one command\r\necho \"Downloading and extracting AdGuard Home...\"\r\ncurl -L ${LATEST_RELEASE} | tar -xz --strip-components=1\r\n\r\n# Ensure the binary is executable\r\nchmod +x AdGuardHome\r\n\r\n# Create work directory\r\necho \"Creating work directory...\"\r\nmkdir -p work\r\nchmod 777 work\r\n\r\n# Create configuration file\r\necho \"Creating configuration file...\"\r\ncat > AdGuardHome.yaml <<EOL\r\nbind_host: 0.0.0.0\r\nbind_port: ${SERVER_PORT}\r\nauth_name: ${ADMIN_USERNAME}\r\nauth_pass: ${ADMIN_PASSWORD}\r\nusers: []\r\ndns:\r\n  bind_hosts:\r\n    - 0.0.0.0\r\n  port: ${DNS_PORT}\r\n  protection_enabled: true\r\n  filtering_enabled: true\r\n  safebrowsing_enabled: ${SAFE_BROWSING}\r\n  parental_enabled: false\r\n  safesearch_enabled: false\r\n  querylog_enabled: true\r\n  ratelimit: 20\r\n  refuse_any: true\r\n  bootstrap_dns:\r\n    - 1.1.1.1\r\n    - 1.0.0.1\r\n  upstream_dns:\r\n    - https:\/\/dns.cloudflare.com\/dns-query\r\n    - https:\/\/dns.google\/dns-query\r\ntls:\r\n  enabled: false\r\nfilters:\r\n  - enabled: true\r\n    url: https:\/\/adguardteam.github.io\/AdGuardSDNSFilter\/Filters\/filter.txt\r\n    name: AdGuard DNS filter\r\n    id: 1\r\nwhitelist_filters: []\r\nuser_rules: []\r\ndhcp:\r\n  enabled: false\r\nEOL\r\n\r\nchmod 777 AdGuardHome.yaml\r\n\r\necho \"-----------------------------------------\"\r\necho \"Installation completed successfully\"\r\necho \"Files in \/mnt\/server:\"\r\nls -la\r\necho \"-----------------------------------------\"",
+            "container": "ghcr.io\/pterodactyl\/installers:debian",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": [
+        {
+            "name": "DNS Port",
+            "description": "The port that AdGuard Home's DNS server should listen on (usually 53).",
+            "env_variable": "DNS_PORT",
+            "default_value": "53",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|numeric|between:1,65535",
+            "field_type": "text"
+        },
+        {
+            "name": "Admin Username",
+            "description": "Username for the AdGuard Home web interface.",
+            "env_variable": "ADMIN_USERNAME",
+            "default_value": "admin",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:50",
+            "field_type": "text"
+        },
+        {
+            "name": "Admin Password",
+            "description": "Password for the AdGuard Home web interface.",
+            "env_variable": "ADMIN_PASSWORD",
+            "default_value": "changeme",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|min:6|max:72",
+            "field_type": "text"
+        },
+        {
+            "name": "Safe Browsing",
+            "description": "Enable AdGuard's Safe Browsing feature (true\/false).",
+            "env_variable": "SAFE_BROWSING",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:true,false",
+            "field_type": "text"
+        }
+    ]
+}
