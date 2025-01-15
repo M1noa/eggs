@@ -1,0 +1,104 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+      "version": "PTDL_v2",
+      "update_url": null
+    },
+    "exported_at": "2023-12-12T12:00:00+00:00",
+    "name": "Cobalt.tools",
+    "author": "support@example.com",
+    "description": "Cobalt is a versatile API and web interface for downloading content from various platforms.",
+    "features": null,
+    "docker_images": {
+      "ghcr.io/parkervcp/yolks:nodejs_18": "ghcr.io/parkervcp/yolks:nodejs_18"
+    },
+    "file_denylist": [],
+    "startup": "cd /home/container && node api/src/index.js",
+    "config": {
+      "files": "{}",
+      "startup": "{\r\n    \"done\": \"API server listening\"\r\n}",
+      "logs": "{}",
+      "stop": "^C"
+    },
+    "scripts": {
+      "installation": {
+        "script": "#!\/bin\/bash\r\n# Cobalt Installation Script\r\n\r\napt update\r\napt install -y git curl\r\n\r\ncd \/mnt\/server\r\n\r\ngit clone https:\/\/github.com\/imputnet\/cobalt.git .\r\n\r\ncurl -fsSL https:\/\/get.pnpm.io\/install.sh | sh -\r\nsource \/root\/.bashrc\r\n\r\ncd api\/src\r\npnpm install\r\n\r\necho \"Installation completed successfully.\"\r\n",
+        "container": "ghcr.io/parkervcp/installers:debian",
+        "entrypoint": "bash"
+      }
+    },
+    "variables": [
+      {
+        "name": "API Port",
+        "description": "The port on which the API server will listen",
+        "env_variable": "API_PORT",
+        "default_value": "9000",
+        "user_viewable": true,
+        "user_editable": true,
+        "rules": "required|numeric|between:1024,65535"
+      },
+      {
+        "name": "API URL",
+        "description": "The URL from which the API server is accessible",
+        "env_variable": "API_URL",
+        "default_value": "http://192.168.10.223:{{SERVER_PORT}}/",
+        "user_viewable": true,
+        "user_editable": true,
+        "rules": "required|url"
+      },
+      {
+        "name": "API Name",
+        "description": "The name of the API server shown in /api/serverInfo",
+        "env_variable": "API_NAME",
+        "default_value": "cobalt-instance",
+        "user_viewable": true,
+        "user_editable": true,
+        "rules": "required|string"
+      },
+      {
+        "name": "CORS Wildcard",
+        "description": "Toggle cross-origin resource sharing (0: disabled, 1: enabled)",
+        "env_variable": "CORS_WILDCARD",
+        "default_value": "1",
+        "user_viewable": true,
+        "user_editable": true,
+        "rules": "required|boolean"
+      },
+      {
+        "name": "Rate Limit Window",
+        "description": "Rate limit time window in seconds",
+        "env_variable": "RATELIMIT_WINDOW",
+        "default_value": "60",
+        "user_viewable": true,
+        "user_editable": true,
+        "rules": "required|numeric|min:1"
+      },
+      {
+        "name": "Rate Limit Max",
+        "description": "Max requests per time window",
+        "env_variable": "RATELIMIT_MAX",
+        "default_value": "20",
+        "user_viewable": true,
+        "user_editable": true,
+        "rules": "required|numeric|min:1"
+      },
+      {
+        "name": "Duration Limit",
+        "description": "Max allowed video duration in seconds",
+        "env_variable": "DURATION_LIMIT",
+        "default_value": "10800",
+        "user_viewable": true,
+        "user_editable": true,
+        "rules": "required|numeric|min:1"
+      },
+      {
+        "name": "Tunnel Lifespan",
+        "description": "Duration for which tunnel info is stored in RAM, in seconds",
+        "env_variable": "TUNNEL_LIFESPAN",
+        "default_value": "90",
+        "user_viewable": true,
+        "user_editable": true,
+        "rules": "required|numeric|min:1"
+      }
+    ]
+  }
